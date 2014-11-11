@@ -1,0 +1,19 @@
+Hangout 02014-11-09
+
+
+YouTube URL:
+
+https://www.youtube.com/watch?v=iCuVTGWNU3s
+
+
+Timeline:
+
+00:00 Welcome and motivation/structure of the uncourse.
+
+25:00 Introduction to core miniKanren: == and equality.
+
+1:01:56 Another notion of equality and == (nominal logic).
+
+1:21:40 Recap of == and equality.
+
+1:23:20 General discussion.
