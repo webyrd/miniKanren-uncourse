@@ -1,7 +1,35 @@
 (load "mk.scm")
 (load "test-check.scm")
 
-(load "==-tests.ss")
+(printf "==-tests\n")
+(load "==-tests.scm")
+
+(printf "symbolo-tests\n")
+(load "symbolo-tests.scm")
+
+(printf "numbero-tests\n")
+(load "numbero-tests.scm")
+
+(printf "symbolo-numbero-tests\n")
+(load "symbolo-numbero-tests.scm")
+
+(printf "disequality-tests\n")
+(load "disequality-tests.scm")
+
+(printf "absento-closure-tests\n")
 (load "absento-closure-tests.scm")
+
+(printf "absento-tests\n")
 (load "absento-tests.scm")
-(load "disequality-tests.ss")
+
+(printf "test-infer\n")
+(load "test-infer.scm")
+
+(printf "test-interp\n")
+(load "test-interp.scm")
+
+(printf "test-numbers\n")
+(load "test-numbers.scm")
+
+(printf "test-quines\n")
+(load "test-quines.scm")
