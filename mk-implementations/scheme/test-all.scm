@@ -28,8 +28,9 @@
 (printf "test-interp\n")
 (load "test-interp.scm")
 
-(printf "test-numbers\n")
-(load "test-numbers.scm")
-
 (printf "test-quines\n")
 (load "test-quines.scm")
+
+(printf "test-numbers\n")
+(load "numbers.scm")
+(load "test-numbers.scm")
