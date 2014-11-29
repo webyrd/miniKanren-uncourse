@@ -1,9 +1,9 @@
 (test "test 0"
-  (run 1 (q) (absento q q))
+  (run* (q) (absento q q))
   '())
 
 (test "test 1"
-  (run 1 (q)
+  (run* (q)
     (fresh (a b c)
       (== a b)
       (absento b c)
@@ -12,44 +12,44 @@
   '())
 
 (test "test 2"
-  (run 1 (q)
-     (fresh (a)
-       (absento q a)
-       (absento `((,q ,q) 3 (,q ,q)) `(,a 3 ,a))))
+  (run* (q)
+    (fresh (a)
+      (absento q a)
+      (absento `((,q ,q) 3 (,q ,q)) `(,a 3 ,a))))
   '(_.0))
 
 (test "test 3"
-  (run 1 (q)
-     (fresh (a b)
-       (absento q a)
-       (absento `(3 ,a) `(,b ,a))
-       (== 3 b)))
+  (run* (q)
+    (fresh (a b)
+      (absento q a)
+      (absento `(3 ,a) `(,b ,a))
+      (== 3 b)))
   '())
 
 (test "test 4"
-  (run 1 (q)
-     (fresh (a b)
-       (absento q a)
-       (absento `(3 ,a) `(,q ,a))
-       (== 3 b)))
+  (run* (q)
+    (fresh (a b)
+      (absento q a)
+      (absento `(3 ,a) `(,q ,a))
+      (== 3 b)))
   '((_.0 (=/= ((_.0 3))))))
 
 (test "test 5"
-  (run 1 (q)
-     (fresh (a b)
-       (numbero a)
-       (numbero b)
-       (absento '(3 3) `(,a ,b))
-       (=/= a b)
-       (== `(,a ,b) q)))
+  (run* (q)
+    (fresh (a b)
+      (numbero a)
+      (numbero b)
+      (absento '(3 3) `(,a ,b))
+      (=/= a b)
+      (== `(,a ,b) q)))
   '(((_.0 _.1) (=/= ((_.0 _.1))) (num _.0 _.1))))
 
 (test "test 6"
-  (run 1 (q) (fresh (a) (absento q a) (== q a)))
+  (run* (q) (fresh (a) (absento q a) (== q a)))
   '())
 
 (test "test 7"
-   (run 1 (q)
+  (run* (q)
     (fresh (a b c)
       (absento '(3 . 4) c)
       (== `(,a . ,b) c)
@@ -57,7 +57,7 @@
   '(((_.0 . _.1) (=/= ((_.0 3) (_.1 4))) (absento ((3 . 4) _.0) ((3 . 4) _.1)))))
 
 (test "test 8"
-  (run 1 (q)
+  (run* (q)
     (fresh (a b)
       (absento 5 a)
       (symbolo b)
@@ -65,18 +65,18 @@
   '((_.0 (absento (5 _.0)))))
 
 (test "test 9"
-  (run 1 (q)
+  (run* (q)
     (fresh (a b)
       (absento 5 a)
       (== `(,q ,b) a)))
   '((_.0 (absento (5 _.0)))))
 
 (test "test 10"
-  (run 1 (q) (fresh (a) (absento `(3 . ,a) q) (absento q `(3 . ,a))))
-   '((_.0 (=/= ((_.0 3))))))
+  (run* (q) (fresh (a) (absento `(3 . ,a) q) (absento q `(3 . ,a))))
+  '((_.0 (=/= ((_.0 3))))))
 
 (test "test 11"
-  (run 1 (q)
+  (run* (q)
     (fresh (a b c d e f)
       (absento `(,a . ,b) q)
       (absento q `(,a . ,b))
@@ -86,15 +86,15 @@
   '((_.0 (=/= ((_.0 3)) ((_.0 4))))))
 
 (test "test 12"
-  (run 1 (q)
+  (run* (q)
     (fresh (a b c)
       (absento `(,3 . ,a) `(,b . ,c))
       (numbero b)
       (== `(,a ,b ,c) q)))
-    '(((_.0 _.1 _.2) (=/= ((_.0 _.2) (_.1 3))) (num _.1) (absento ((3 . _.0) _.2)))))
+  '(((_.0 _.1 _.2) (=/= ((_.0 _.2) (_.1 3))) (num _.1) (absento ((3 . _.0) _.2)))))
 
 (test "test 13"
-  (run 1 (q)
+  (run* (q)
     (fresh (a b c)
       (== `(,a . ,b) q)
       (absento '(3 . 4) q)
@@ -103,14 +103,14 @@
   '(((_.0 . _.1) (=/= ((_.0 3) (_.1 4))) (num _.0 _.1))))
 
 (test "test 14"
-   (run 1 (q)
+  (run* (q)
     (fresh (a b)
       (absento '(3 . 4) `(,a . ,b))
       (== `(,a . ,b) q)))
   '(((_.0 . _.1) (=/= ((_.0 3) (_.1 4))) (absento ((3 . 4) _.0) ((3 . 4) _.1)))))
 
 (test "test 15"
-  (run 1 (q)
+  (run* (q)
     (absento q `(3 . (4 . 5))))
   '((_.0 (=/= ((_.0 3))
               ((_.0 4))
@@ -119,7 +119,7 @@
               ((_.0 (4 . 5)))))))
 
 (test "test 16"
-  (run 1 (q)
+  (run* (q)
     (fresh (a b x)
       (absento a b)
       (symbolo a)
@@ -201,7 +201,7 @@
   '(((_.0 _.1) (absento (_.0 _.1) (_.1 _.0)))))
 
 (test "test 32"
-  (run 1 (q)
+  (run* (q)
     (fresh (a b)
       (absento 5 a)
       (absento 5 b)
@@ -209,7 +209,7 @@
   '(((_.0 . _.1) (absento (5 _.0) (5 _.1)))))
 
 (test "test 33"
-  (run 1 (q)
+  (run* (q)
     (fresh (a b c)
       (== `(,a ,b) c)
       (== `(,c ,c) q)
@@ -218,15 +218,15 @@
   '())
 
 (test "test 34"
-  (run 1 (q) (absento 'tag q) (symbolo q))
+  (run* (q) (absento 'tag q) (symbolo q))
   '((_.0 (=/= ((_.0 tag))) (sym _.0))))
 
 (test "test 35"
-  (run 1 (q) (absento 5 q) (numbero q))
+  (run* (q) (absento 5 q) (numbero q))
   '((_.0 (=/= ((_.0 5))) (num _.0))))
 
 (test "test 36"
-  (run 1 (q)
+  (run* (q)
     (fresh (a)
       (== 5 a) (absento a q)))
   '((_.0 (absento (5 _.0)))))
@@ -242,15 +242,15 @@
   '(((_.0 _.1) (=/= ((_.0 _.1))) (sym _.0 _.1))))
 
 (test "test 38"
-  (run 1 (q) (absento '() q))
+  (run* (q) (absento '() q))
   '((_.0 (absento (() _.0)))))
 
 (test "test 39"
-  (run 1 (q) (absento `(3 4) q))
+  (run* (q) (absento `(3 4) q))
   '((_.0 (absento ((3 4) _.0)))))
 
 (test "test 40"
-  (run 1 (q)
+  (run* (q)
     (fresh (d a c)
       (== `(3 . ,d) q)
       (=/= `(,c . ,a) q)
@@ -258,20 +258,20 @@
   '((3 3 . 4)))
 
 (test "test 41"
-  (run 1 (q)
+  (run* (q)
     (fresh (a)
       (== `(,a . ,a) q)))
   '((_.0 . _.0)))
 
 (test "test 42"
-  (run 1 (q)
+  (run* (q)
     (fresh (a b)
       (==  `((3 4) (5 6)) q)
       (absento `(3 4) q)))
   '())
 
 (test "test 43"
-  (run 1 (q) (absento q 3))
+  (run* (q) (absento q 3))
   '((_.0 (=/= ((_.0 3))))))
 
 (test "test 44"
@@ -283,70 +283,73 @@
   '(((_.0 _.1) (absento (_.0 _.1) (_.1 _.0)))))
 
 (test "test 45"
-  (run 1 (q)
+  (run* (q)
     (fresh (a b)
       (absento `(,a . ,b) q)
       (== q `(3 . (,b . ,b)))))
   '((3 _.0 . _.0)))
 
 (test "test 45b"
-  (run 1 (q)
+  (run* (q)
     (fresh (a b)
       (absento `(,a . ,b) q)
       (== q `(,a 3 . (,b . ,b)))))
   '(((_.0 3 _.1 . _.1) (=/= ((_.0 _.1))))))
 
 (test "test 46"
-  (run 1 (q)
+  (run* (q)
     (fresh (a)
       (absento a q)
       (absento q a)))
   '(_.0))
 
 (test "test 47"
-  (run 1 (q)
+  (run* (q)
     (fresh (a)
       (absento `(,a . 3) q)))
   '(_.0)) 
 
 (test "test 48"
-  (run 1 (q)
+  (run* (q)
     (fresh (a)
       (absento `(,a . 3) q)))
   '(_.0))
 
 (test "test 49"
-  (run 1 (q)
+  (run* (q)
     (fresh (a b c d e)
       (absento `((3 4 ,a) (4 ,b) ((,c)) ,d ,e) q)))
   '(_.0))
 
 (test "test 50"
-  (run 1 (q) (fresh (a)
-	       (absento a q)
-	       (== 5 a)))
+  (run* (q)
+    (fresh (a)
+      (absento a q)
+      (== 5 a)))
   '((_.0 (absento (5 _.0)))))
 
 (test "test 51"
-  (run 1 (q) (fresh (a b c d)
-	       (== a 5)
-	       (== a b)
-	       (== b c)
-	       (absento d q)
-	       (== c d)))
+  (run* (q)
+    (fresh (a b c d)
+      (== a 5)
+      (== a b)
+      (== b c)
+      (absento d q)
+      (== c d)))
   '((_.0 (absento (5 _.0)))))
 
 (test "test 52"
-  (run 1 (q) (fresh (a b c d)
-	       (== a b)
-	       (== b c)
-	       (absento a q)
-	       (== c d)
-	       (== d 5)))
+  (run* (q)
+    (fresh (a b c d)
+      (== a b)
+      (== b c)
+      (absento a q)
+      (== c d)
+      (== d 5)))
   '((_.0 (absento (5 _.0)))))
 
 (test "test 53"
-  (run 1 (q)
+  (run* (q)
     (fresh (t1 t2 a)
       (== `(,a . 3) t1)
       (== `(,a . (4 . 3)) t2)
@@ -355,51 +358,53 @@
   '((((_.0 . 3) (_.0 4 . 3)) (=/= ((_.0 4))))))
 
 (test "test 54"
-  (run 1 (q)
+  (run* (q)
     (fresh (a)
       (== `(,a . 3) q)
       (absento q `(,a . (4 . 3)))))
   '(((_.0 . 3) (=/= ((_.0 4))))))
 
 (test "test 55"
-  (run 1 (q) (fresh (a d c)
-	       (== '(3 . 4) d)
-	       (absento `(3 . 4) q)
-	       (== `(3 . ,d) q)))
+  (run* (q)
+    (fresh (a d c)
+      (== '(3 . 4) d)
+      (absento `(3 . 4) q)
+      (== `(3 . ,d) q)))
   '())
 
 (test "test 56"
-  (run* (q) (fresh (a b)
-	      (absento a b)
-	      (absento b a)
-	      (== `(,a ,b) q)
-	      (symbolo a)
-	      (numbero b)))
+  (run* (q)
+    (fresh (a b)
+      (absento a b)
+      (absento b a)
+      (== `(,a ,b) q)
+      (symbolo a)
+      (numbero b)))
   '(((_.0 _.1) (num _.1) (sym _.0))))
 
 
 (test "test 57"
-  (run 1 (q)
+  (run* (q)
     (numbero q)
     (absento q 3))
   '((_.0 (=/= ((_.0 3))) (num _.0))))
 
 (test "test 58"
-  (run 1 (q)
+  (run* (q)
     (fresh (a)
       (== `(,a . 3) q)
       (absento q `(,a . (4 . (,a . 3))))))
   '())
 
 (test "test 59"
-  (run 1 (q) 
+  (run* (q) 
     (fresh (a) 
       (== `(,a . 3) q)
       (absento q `(,a . ((,a . 3) . (,a . 4))))))
   '())
 
 (test "test 60"
-  (run 1 (q)
+  (run* (q)
     (fresh (a d c)
       (== `(3 . ,d) q)
       (== '(3 . 4) d)
@@ -407,7 +412,7 @@
   '())
 
 (test "test 61"
-  (run 1 (q)
+  (run* (q)
     (fresh (a b c)
       (symbolo b)
       (absento `(,3 . ,a) `(,b . ,c))
@@ -415,27 +420,27 @@
   '(((_.0 _.1 _.2) (sym _.1) (absento ((3 . _.0) _.2)))))
 
 (test "test 62"
-  (run 1 (q) (fresh (a b c) (absento a b) (absento b c) (absento c q) (symbolo a)))
+  (run* (q) (fresh (a b c) (absento a b) (absento b c) (absento c q) (symbolo a)))
   '(_.0))
 
 (test "test 63"
-  (run 1 (q) (fresh (a b c) (=/= a b) (=/= b c) (=/= c q) (symbolo a)))
+  (run* (q) (fresh (a b c) (=/= a b) (=/= b c) (=/= c q) (symbolo a)))
   '(_.0))
 
 (test "test 64"
-  (run 1 (q) (symbolo q) (== 'tag q))
+  (run* (q) (symbolo q) (== 'tag q))
   '(tag))
 
 (test "test 65"
-  (run 1 (q) (fresh (b) (absento '(3 4) `(,q ,b))))
+  (run* (q) (fresh (b) (absento '(3 4) `(,q ,b))))
   '((_.0 (absento ((3 4) _.0)))))
 
 (test "test 66"
-  (run 1 (q) (absento 6 5))
+  (run* (q) (absento 6 5))
   '(_.0))
 
 (test "test 67"
-  (run 1 (q)
+  (run* (q)
     (fresh (a b)
       (=/= a b)
       (symbolo a)
@@ -444,7 +449,7 @@
   '(((_.0 _.1) (num _.1) (sym _.0))))
 
 (test "test 68"
-  (run 1 (q)
+  (run* (q)
     (fresh (a b c d)
       (=/= `(,a ,b) `(,c ,d))
       (symbolo a)
@@ -455,34 +460,42 @@
   '(((_.0 _.1 _.2 _.3) (num _.2) (sym _.0 _.1))))
 
 (test "test 69"
-  (run 1 (q) (fresh (a b) (=/= `(,a . 3) `(,b . 3)) (symbolo a) (numbero b) (== `(,a ,b) q)))
+  (run* (q)
+    (fresh (a b)
+      (=/= `(,a . 3) `(,b . 3))
+      (symbolo a)
+      (numbero b)
+      (== `(,a ,b) q)))
    '(((_.0 _.1) (num _.1) (sym _.0))))
 
 (test "test 70"
-  (run* (q) (fresh (a b)
-	      (absento a b)
-	      (absento b a)
-	      (== `(,a ,b) q)
-	      (symbolo a)
-	      (numbero b)))
+  (run* (q)
+    (fresh (a b)
+      (absento a b)
+      (absento b a)
+      (== `(,a ,b) q)
+      (symbolo a)
+      (numbero b)))
   '(((_.0 _.1) (num _.1) (sym _.0))))
 
 (test "test 70b"
-  (run* (q) (fresh (a b)
-              (symbolo a)
-              (numbero b)
-              (absento a b)
-              (absento b a)
-              (== `(,a ,b) q)))
+  (run* (q)
+    (fresh (a b)
+      (symbolo a)
+      (numbero b)
+      (absento a b)
+      (absento b a)
+      (== `(,a ,b) q)))
   '(((_.0 _.1) (num _.1) (sym _.0))))
 
 (test "test 71"
-  (run* (q) (fresh (a b)
-	      (absento a b)
-	      (absento b a)
-	      (== `(,a ,b) q)
-	      (symbolo a)
-	      (symbolo b)))
+  (run* (q)
+    (fresh (a b)
+      (absento a b)
+      (absento b a)
+      (== `(,a ,b) q)
+      (symbolo a)
+      (symbolo b)))
   '(((_.0 _.1) (=/= ((_.0 _.1))) (sym _.0 _.1))))
 
 (test "test 72"
@@ -494,7 +507,7 @@
   '(((_.0 _.1) (absento (_.0 _.1) (_.1 _.0)))))
 
 (test "test 73"
-  (run 1 (q)
+  (run* (q)
     (fresh (a b)
       (== `(,a ,b) q)
       (absento b a)
@@ -505,7 +518,7 @@
    (absento ((1 . 2) _.0)))))
 
 (test "test 74"
-  (run 1 (q)
+  (run* (q)
     (fresh (a b c)
       (absento a q)
       (absento q a)
@@ -517,7 +530,7 @@
       (absento (((1 . 2) 3 . 4) _.0)))))
 
 (test "test 75"
-   (run 1 (q)
+   (run* (q)
      (fresh (a b c d e f g)
        (absento a q)
        (absento q a)
@@ -545,13 +558,13 @@
           (absento ((((1 . 2) 3 . 4) (5 . 6) 7 . 8) _.0)))))
 
 (test "test 76"
-   (run 1 (q)
+   (run* (q)
      (absento 3 q)
      (absento '(3 4) q))
    '((_.0 (absento (3 _.0)))))
 
 (test "test 77"
-  (run 1 (q)
+  (run* (q)
      (fresh (x a b)
        (== x `(,a ,b))
        (absento '(3 4) x)
@@ -561,7 +574,7 @@
   '(((_.0 2) (absento (3 _.0)))))
 
 (test "test 78"
-  (run 1 (q)
+  (run* (q)
     (fresh (d)
       (== `(3 . ,d) q)
       (absento `(3 . 4) q)
@@ -569,7 +582,7 @@
   '())
 
 (test "test 79"
-  (run 1 (q)
+  (run* (q)
     (fresh (d)
       (absento `(3 . 4) q)
       (== `(3 . ,d) q)
@@ -577,7 +590,7 @@
   '())
 
 (test "test 80"
-  (run 1 (q)
+  (run* (q)
     (fresh (d a c)
       (== `(3 . ,d) q)
       (absento `(3 . ,a) q)
@@ -586,21 +599,21 @@
   '())
 
 (test "test 81"
-  (run 1 (q)
+  (run* (q)
     (fresh (a b)
       (absento `(3 . ,a) `(,b . 4))
       (== `(,a . ,b) q)))
   '(((_.0 . _.1) (=/= ((_.0 4) (_.1 3))) (absento ((3 . _.0) _.1)))))
 
 (test "test 82"
-  (run 1 (q)
+  (run* (q)
     (fresh (d)
       (== `(3 . ,d) q)
       (absento `(3 . 4) q)))
   '(((3 . _.0) (=/= ((_.0 4))) (absento ((3 . 4) _.0)))))
 
 (test "test 83"
-  (run 1 (q)
+  (run* (q)
     (fresh (d)
       (== `(3 . ,d) q)
       (== '(3 . 4) d))
@@ -608,17 +621,33 @@
   '())
 
 (test "test 84"
-  (run 1 (q) 
+  (run* (q) 
     (fresh (a b c d) 
-      (=/= `(,a . ,b) `(,c . ,d)) 
-      (absento a c) 
+      (=/= `(,a . ,b) `(,c . ,d))
+      (absento a c)
       (== `(,a ,b ,c ,d) q)))
   '(((_.0 _.1 _.2 _.3) (absento (_.0 _.2)))))
 
 (test "test 84 b"
-  (run 1 (q) 
+  (run* (q)
     (fresh (a b c d) 
       (=/= `(,a . ,b) `(,c . ,d)) 
       (absento c a) 
       (== `(,a ,b ,c ,d) q)))
   '(((_.0 _.1 _.2 _.3) (absento (_.2 _.0)))))
+
+(test "test 85 a"
+  (run* (q)
+    (fresh (a b)
+      (=/= a b)
+      (absento a b)
+      (== `(,a ,b) q)))
+  '(((_.0 _.1) (absento (_.0 _.1)))))
+
+(test "test 85 b"
+  (run* (q)
+    (fresh (a b)
+      (absento a b)
+      (=/= a b)
+      (== `(,a ,b) q)))
+  '(((_.0 _.1) (absento (_.0 _.1)))))
