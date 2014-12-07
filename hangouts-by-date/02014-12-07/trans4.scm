@@ -72,3 +72,48 @@
 (run 2 (q) (lookupo 'x '((x . 5) (y . 6) (x . 7)) q))
 ;; => (5)
 
+(run* (q) (lookupo q '((x . 5) (y . 6)) '5))
+;; => (x)
+
+(define eval-expo
+  (lambda (expr env out)
+    (conde
+      [(symbolo expr) ;; variable
+       (lookupo expr env out)]
+      [(fresh (x body) ;; abstraction
+         (== `(lambda (,x) ,body) expr)
+         (== `(closure ,x ,body ,env) out))]
+      [(fresh (e1 e2 val x body envˆ) ;; application
+         (== `(,e1 ,e2) expr)
+         (eval-expo e1 env `(closure ,x ,body ,envˆ))
+         (eval-expo e2 env val)
+         (eval-expo body `((,x . ,val) . ,envˆ) out))])))
+
+(run* (q) (eval-expo '(lambda (x) x) '() q))
+;; => ((closure x x ()))
+
+(run* (q) (eval-expo 'x '((x . 5)) q))
+;; => (5)
+
+(run* (q) (eval-expo '((lambda (x) x) (lambda (y) y)) '() q))
+;; => ((closure y y ()))
+
+(run* (q) (eval-expo '(((lambda (x) (lambda (x) x)) (lambda (y) y)) (lambda (w) w)) '() q))
+;; => ((closure w w ()))
+
+#|
+(define eval-exp
+  (lambda (expr env)
+    (pmatch expr
+      [,x (guard (symbol? x)) ;; variable
+       (lookup x env)]
+      [(lambda (,x) ,body) ;; abstraction
+       `(closure ,x ,body ,env)]
+      [(,e1 ,e2) ;; application
+       (let ((proc (eval-exp e1 env))
+             (val (eval-exp e2 env)))
+         (pmatch proc
+           [(closure ,x ,body ,envˆ)
+            (eval-exp body `((,x . ,val) . ,envˆ))]
+           [,else (error 'eval-exp "e1 does not evaluate to a procedure")]))])))
+|#
