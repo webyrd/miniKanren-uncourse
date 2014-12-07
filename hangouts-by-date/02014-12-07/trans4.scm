@@ -17,6 +17,19 @@
       [((,y . ,_) . ,envˆ)
        (lookup x envˆ)])))
 
+#|
+;; metaphorical definition of lookup, with Dijkstra-style explicit guard
+(define lookup
+  (lambda (x env)
+    (pmatch env
+      [((,y . ,v) . ,envˆ) (guard (eq? x y))
+       v]
+      [()
+       (error 'lookup "unbound variable")]
+      [((,y . ,v) . ,envˆ) (guard (not (eq? x y)))
+       (lookup x envˆ)])))
+|#
+
 (define eval-exp
   (lambda (expr env)
     (pmatch expr
@@ -58,3 +71,4 @@
 
 (run 2 (q) (lookupo 'x '((x . 5) (y . 6) (x . 7)) q))
 ;; => (5)
+
