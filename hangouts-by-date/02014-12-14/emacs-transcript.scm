@@ -206,3 +206,47 @@
 
 (run* (q) (eval-expo '(quote 5) '() q))
 ;; => (5)
+
+
+;; 99 ways to say (I love you)
+;; see also http://matt.might.net/articles/i-love-you-in-racket/
+(run 99 (expr) (eval-expo expr '() '(I love you)))
+
+;; Quines
+(run 1 (q) (eval-expo q '() q))
+
+;; Twines
+(run 1 (p q)  ;; twines   twin quines
+  (=/= p q)
+  (eval-expo p '() q)
+  (eval-expo q '() p))
+
+;; Thrines
+(run 1 (p q r) ;; thrines
+  (=/= p q)
+  (=/= p r)
+  (=/= q r)
+  (eval-expo p '() q)
+  (eval-expo q '() r)
+  (eval-expo r '() p))
+;; =>
+;; (((''((lambda (_.0)
+;;         (list 'quote
+;;           (list 'quote (list _.0 (list 'quote _.0)))))
+;;        '(lambda (_.0)
+;;           (list 'quote
+;;             (list 'quote (list _.0 (list 'quote _.0))))))
+;;     '((lambda (_.0)
+;;         (list 'quote
+;;           (list 'quote (list _.0 (list 'quote _.0)))))
+;;        '(lambda (_.0)
+;;           (list 'quote
+;;             (list 'quote (list _.0 (list 'quote _.0))))))
+;;     ((lambda (_.0)
+;;        (list 'quote
+;;          (list 'quote (list _.0 (list 'quote _.0)))))
+;;       '(lambda (_.0)
+;;          (list 'quote
+;;            (list 'quote (list _.0 (list 'quote _.0)))))))
+;;    (=/= ((_.0 closure)) ((_.0 list)) ((_.0 quote)))
+;;    (sym _.0)))
