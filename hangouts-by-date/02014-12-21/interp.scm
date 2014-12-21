@@ -243,3 +243,11 @@
 ;;            (list 'quote (list _.0 (list 'quote _.0)))))))
 ;;    (=/= ((_.0 closure)) ((_.0 list)) ((_.0 quote)))
 ;;    (sym _.0)))
+
+
+(define Y
+  '(lambda (f)
+     ((lambda (x)
+        (f (x x)))
+      (lambda (x)
+        (f (x x))))))
