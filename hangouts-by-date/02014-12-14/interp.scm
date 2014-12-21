@@ -1,10 +1,3 @@
-
-
-
-
-
-
-
 ;; miniKanren Hangout #5: extending the Relational Scheme interpreter
 (load "../../mk-implementations/scheme/mk.scm")
 (load "../../mk-implementations/scheme/pmatch.scm")

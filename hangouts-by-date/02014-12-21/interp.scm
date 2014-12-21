@@ -1,11 +1,4 @@
-
-
-
-
-
-
-
-;; miniKanren Hangout #5: extending the Relational Scheme interpreter
+;; miniKanren Hangout #6: extending the Relational Scheme interpreter to handle list-related functions in Scheme
 (load "../../mk-implementations/scheme/mk.scm")
 (load "../../mk-implementations/scheme/pmatch.scm")
 
