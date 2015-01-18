@@ -436,7 +436,25 @@
 
 ;; core.logic in Clojure uses != instead of =/=
 
-;; Hubert Comon  disequations
+;; Excellent survey paper on unification:
+;;
+;; Unification: A multidisciplinary survey
+;; Kevin Knight
+;; http://www.isi.edu/natural-language/people/unification-knight.pdf
+
+;; Disunification papers:
+;;
+;; Equational Problems and Disunification (1989)
+;; Hubert Comon , Pierre Lescanne
+;; http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.139.4769
+;;
+;; Disunification: a Survey (1991)
+;; Hubert Comon
+;; http://citeseer.uark.edu:8080/citeseerx/viewdoc/summary?doi=10.1.1.48.8234
+;;
+;; Combining Unification- and Disunification Algorithms - Tractable and Intractable Instances (1996)
+;; Klaus U. Schulz
+;; http://citeseer.uark.edu:8080/citeseerx/viewdoc/summary?doi=10.1.1.49.7617
 
 ;; ()
 (== `(5 ,x)
