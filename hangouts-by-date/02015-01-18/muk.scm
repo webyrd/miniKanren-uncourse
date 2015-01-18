@@ -294,6 +294,150 @@
          (and s (unify (cdr u) (cdr v) s)))]
       [else (and (eqv? u v) s)])))
 
+;; (unify u v s) can return one of three values:
+;; 
+;; 1. #f  (represents failure of u and v to unify in s)
+;; 2. s   (same s as was passed into unify -- no extension to substitution; u & v equal)
+;; 3. s^  (s^ is a non-empty extension to s; u & v are not equal, but can be made equal)
+
+(== 5 5) ; (2) succeed, no need to extend the substitution (throw away the == constraint)
+(== 5 6) ; (1) fail
+(== 5 x) ; (3) s^ = ((x . 5) . s); succeeds, need to add constraint that x is 5
+(== `(5 . ,x) `(5 . ,y)) ; (3) s^ = ((x . y) . s)
+;; succeeds, x and y equal, simplify constraint to (== x y)
+(== `(5 . ,x) `(6 . ,y)) ; (1) fails
+
+;; constraint store c, which include both an s and a disequality constraint store d
+;; c = `(,s ,d)     d is a list of mini-substitutions
+(=/= 5 5) ; (2) fail
+(=/= 5 6) ; (1) succeeds, can never be violated; return the original c
+(=/= 5 x) ; (3) succeeds, but x can not be instantiated to 5 later in the program
+;; s^ = ((x . 5) . s)   prefix of s = ((x . 5)) <- mini substitution
+;; the mini substitution is the normalized form of the disequality constraint,
+;; and can be added to the 'd' part of the constraint store
+(=/= `(5 . ,x) `(5 . ,y)) ; (3) succeed, but x and y can never be equal; (=/= x y)
+;; s^ = ((x . y) . s)    prefix of s = ((x . y)) <- mini substitution
+(=/= `(5 . ,x) `(6 . ,y)) ; (1) succeeds, can never be violated
+
+(fresh (x y z)
+  (=/= `(,x . ,y) `(,z . 5)))
+
+;; think about (=/= `(,x . ,y) `(,z . 5)) in terms of (== `(,x . ,y)
+;;                                                        `(,z . 5)),
+;; which calls (unify `(,x . ,y) `(,z . 5) s)
+;;
+;; Unification succeeds, producing s^ = `((,x . ,z) (,y . 5) . ,s)
+;; Prefix is the mini-substitution `((,x . ,z) (,y . 5)) <- this goes in 'd'
+
+(fresh (x y z)
+  (=/= `(,x . ,y) `(,z . 5))
+  ;; d = `(((,x . ,z) (,y . 5)))      c = `(,s ,d)
+  (== y 5))
+
+  ;; c = `(((,y . 5) . ,s)  <- new s, s1
+  ;;       (((,x . ,z) (,y . 5)))) <- disequality store (list of association lists)
+
+;; How do we solve the disequality constraint `((,x . ,z)
+;;                                              (,y . 5)) in s1?
+
+;; Unify two terms in s1
+;; (unify `(,x ,y) `(,z 5) `((,y . 5) . ,s))
+;;
+;; equivalent to
+;;
+;; (unify `(,x 5) `(,z 5) `((,y . 5) . ,s))
+;;
+;; equivalent to
+;;
+;; (unify x z `((,y . 5) . ,s))
+;;
+;; s^ = `((,x . ,z) (,y . 5) . ,s)
+;;
+;; prefix of s^ is `((,x . ,z))
+;;
+;; new c = `(((,y . 5) . ,s)
+;;          (((,x . ,z)))) <- new d
+
+(fresh (x y z)
+  ;; d = ()                           c = `(,s ,d)
+  (=/= `(,x . ,y) `(,z . 5))
+  ;; d1 = `(((,x . ,z) (,y . 5)))     c = `(,s ,d1)
+  (== y 5)
+  ;; s1 = `((,y . 5) . ,s)
+  ;; d2 = `(((,x . ,z)))
+  (== x z)
+  ;; s2 = `((,x . ,z) (,y . 5) . ,s)
+  ;; (unify x z s2) => s2   violated disequality constraint ; fail!
+  )
+
+
+(fresh (x y)
+  ;; c = `(,s ,d)
+  (=/= x 5)
+  ;; c1 = `(,s (((,x . 5)) . ,d))
+  (=/= x 6)
+  ;; c2 = `(,s (((,x . 6))
+  ;;            ((,x . 5))
+  ;;            . ,d))
+  (=/= x y)
+  ;; c3 = `(,s (((,x . y))
+  ;;            ((,x . 6))
+  ;;            ((,x . 5))
+  ;;            . ,d))
+  )
+
+(fresh (x y)
+;;  c = `(,s ,d)
+  (=/= x y)
+;;  c1 = `(,s (((,x . ,y)) . ,d))
+  (== x 5)
+;;  c2 = `(((,x . 5) . ,s)
+;;         (((,y . 5)) . ,d)) 
+  (== y 6)
+;;  c3 = `(((,y . 6) (,x . 5) . ,s)
+;;         ,d)
+  )
+
+
+;; subsumption example (violating one constraint necessarily violates
+;; another constraint)
+(fresh (x y z)
+  ;; c = `(,s ,d)
+  (=/= x 5)
+  ;; c1 = `(,s (((,x . 5)) . ,d))
+  (=/= `(,x . ,y)
+       `(5 . ,z))
+  ;; c2 = `(,s
+  ;;         (((,x . 5) (,y . ,z))
+  ;;          ((,x . 5)) <- mini substitution for (=/= x 5)
+  ;;          . ,d))
+  ;;
+  ;; =/= constraint introduced by the second =/= call is redundant!
+  ;; (subsumed by the first constraint)
+  ;;
+  ;; can throw away that constraint to get the simplified
+  ;;
+  ;;
+  ;; c2 = `(,s
+  ;;         (((,x . 5)) <- mini substitution for (=/= x 5)
+  ;;          . ,d))
+  
+  )
+
+  (=/= `(,x . ,y)
+       `(5 . ,z))
+
+;; equal?
+;;
+;; x = 5 and y = 6 and z = 6
+;; then
+;; `(,x . ,y) = `(5 . 6)
+;; `(5 . ,z)  = `(5 . 6)
+
+;; core.logic in Clojure uses != instead of =/=
+
+;; Hubert Comon  disequations
+
 ;; ()
 (== `(5 ,x)
     `(,y 6))
@@ -335,3 +479,26 @@
 
 ;; Bones link, from Peter
 ;; http://www.call-with-current-continuation.org/bones/
+
+
+
+;; Paper link from Daniel
+;; "A Persistent Union-Find Data Structure" by Conchon et al. (2007)
+;; https://www.lri.fr/~filliatr/puf/
+
+;; Essentials of Logic Programming
+;; Chris Hogger
+
+
+;; Be careful when composing constraints!!
+(fresh (x)
+  (symbolo x)
+  (numbero x) ; <- should fail!!!
+  (f x) ; <- goal that diverges
+  )
+
+(fresh (x)
+  (booleano x)
+  (=/= #t x)
+  (=/= #f x) ;; <- should fail!!!
+  )
