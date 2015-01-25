@@ -105,17 +105,20 @@
   g1)
 
 
-((lambda (x)
-   ((lambda (y)
-      (conj
-       (== x 5)
-       (== y 6)))
-    (make-logic-var 1)))
- (make-logic-var 0))
-
 (fresh (x y)
   (== x 5)
   (== y 6))
+
+;; =>
+
+((lambda (x)
+   ((lambda (y)
+      (conj
+        (== x 5)
+        (== y 6)))
+    (make-logic-var 1)))
+ (make-logic-var 0))
+
 
 
 (fresh (x y)
@@ -281,8 +284,7 @@
     `(5 . ,y)) 
 
 (define (unify u v s)
-  (let ((u (walk u s))
-        (v (walk v s)))
+  (let ((u (walk u s)) (v (walk v s)))
     (cond
       [(and (var? u) (var? v) (var=? u v)) s]
       [(var? u) (ext-s u v s)] ; left out the occur check 
@@ -522,11 +524,277 @@
 ;;;
 
 ; unif/disunif
+(== x y)
+(=/= x y)
 
 ; CLP(tree)
 
 ; substitution
 
+((,x . 5) (,y . (,x 7)))
+
 ; variables
+(define (var c)
+  (vector c))
+
+(define var
+  (lambda (c)
+    (vector c)))
+
+(let ((x (var 0)))
+  (let ((y (var 1)))
+    `((,x . 5) (,y . (,x 7)))))
+;; =>
+;; ((#(0) . 5) (#(1) . (#(0) 7)))
+
+
+;; From https://github.com/jasonhemann/microKanren
+
+(define (var c) (vector c)) ;; constructor for a logic variable
+(define (var? x) (vector? x)) ;; test if x is a logic variable
+(define (var=? x1 x2) (= (vector-ref x1 0) (vector-ref x2 0))) ;; compare two logic variables for equality
+
+(define var?
+  (lambda (x)
+    (and
+      (vector? x)
+      (= (vector-length x) 1)
+      (number? (vector-ref x 0)))))
+
+(define var=?
+  (lambda (x1 x2)
+    (= (vector-ref x1 0) (vector-ref x2 0))))
 
 ; goals, goal constructors, streams
+
+(define (== u v)
+  (lambda (s/c)
+    (let ((s (unify u v (car s/c))))
+      (if s (unit `(,s . ,(cdr s/c))) mzero))))
+
+(define ==
+  (lambda (u v)
+    (lambda (s/c) ; s = substitution  c = counter
+      (let ((s (car s/c))
+            (c (cdr s/c)))
+        (let ((s (unify u v s)))
+          (if s
+              (unit `(,s . ,c))
+              mzero))))))
+
+;; 'How to Replace Failure by a List of Successes'
+;; https://rkrishnan.org/files/wadler-1985.pdf
+
+s = ((,x . 5) (,y . (,x 7)))
+c = 2
+s/c (((,x . 5) (,y . (,x 7))) . 2)
+
+(unit `(((,x . 5) (,y . (,x 7))) . 2))
+=>
+(cons `(((,x . 5) (,y . (,x 7))) . 2) '())
+=>
+((((,x . 5) (,y . (,x 7))) . 2))
+
+
+(== x 5)
+;   u v
+; =>
+; #<procedure>
+
+
+(define (unit s/c) (cons s/c mzero))
+(define mzero '())
+
+
+(fresh (x y)
+  (== x 5)
+  (== y 6))
+
+;; =>
+
+(let ((x (var 0)))
+  (let ((y (var 1)))
+    (conj
+      (== x 5)
+      (== y 6))))
+;; =>
+((lambda (x)
+   ((lambda (y)
+      (conj
+        (== x 5)
+        (== y 6)))
+    (var 1)))
+ (var 0))
+
+
+(fresh (x y)
+  (== x y))
+;; =>
+(let ((s '())
+      (c 0))
+  (let ((s/c (cons s c)))
+    (let ((x (var (cdr s/c)))
+          (c (+ 1 (cdr s/c))))
+      ...
+      (let ((y (var c)))
+        ((== x y) s/c)))))
+
+
+
+(define (call/fresh f)
+  (lambda (s/c) ;; goal   takes an s/c and returns a stream of s/c's
+    (let ((c (cdr s/c)))
+      ((f (var c))
+       `(,(car s/c) . ,(+ c 1))))))
+
+
+(define call/fresh
+  (lambda (f) ;; goal constructor
+    (lambda (s/c) ;; goal   takes an s/c and returns a stream of s/c's
+      (let ((s (car s/c)) ;; substitution
+            (c (cdr s/c)) ;; counter
+            )
+        (let ((v (var c)))
+          (let ((g (f v))
+                (c (+ c 1))) ;; g is the goal returned by passing a new variable to f
+            (let ((s/c `(,s . ,c)))
+              (g s/c))))))))
+
+(define call/fresh
+  (lambda (f) ;; goal constructor
+    (lambda (s c) ;; goal
+      (let ((v (var c)))
+        (let ((g (f v))
+              (c (+ c 1))) ;; g is the goal returned by passing a new variable to f
+          (g s c))))))
+
+(call/fresh (lambda (x) (== x 5)))
+
+;; stream version
+(define ==
+  (lambda (u v)
+    (lambda (s/c) ; s = substitution  c = counter
+      (let ((s (car s/c))
+            (c (cdr s/c)))
+        (let ((s (unify u v s)))
+          (if s
+              (unit `(,s . ,c))
+              mzero))))))
+
+;; Mitch Wand and Dale Vaillancourt 
+;; 'Relating Models of Backtracking'
+;; http://www.ccs.neu.edu/home/wand/papers/icfp-04.pdf
+
+;; 2 continuation-version
+(define ==
+  (lambda (u v)
+    (lambda (s/c sk fk) ; s = substitution  c = counter  sk = success continuation  fk = failure cont.
+      (let ((s (car s/c))
+            (c (cdr s/c)))
+        (let ((s (unify u v s)))
+          (if s
+              (sk `(,s . ,c) fk)
+              (fk)))))))
+
+
+
+
+(run 1 (x)
+  (== x 5))
+;; => (5)
+;; => ((,x . 5))
+
+(let ((s '())
+      (c 0))
+  (let ((s/c `(,s . ,c))
+        (g (call/fresh (lambda (x) (== x 5)))))
+    (g s/c)))
+;; =>
+;; ((((#(0) . 5)) . 1))  (unit s/c)
+;; (((#(0) . 5)) . 1)     s/c
+;; ((#(0) . 5))
+;; x = 5
+
+(let ((s '())
+      (c 0))
+  (let ((s/c `(,s . ,c))
+        (g (call/fresh (lambda (x) (== `(,x) x)))))
+    (g s/c)))
+;; =>
+;; ((((#(0) . (#(0)))) . 1))
+
+(let ((s '())
+      (c 0))
+  (let ((s/c `(,s . ,c))
+        (g (== 5 6)))
+    (g s/c)))
+;; =>
+;; ()    mzero   empty stream
+
+
+(fresh (x y)
+  (== x 5)
+  (== y 6)
+  (== x y))
+
+
+(let ((s '())
+      (c 0))
+  (let ((s/c `(,s . ,c))
+        (g (call/fresh
+             (lambda (x)
+               (call/fresh
+                 (lambda (y)
+                   (== x y)))))))
+    (g s/c)))
+;; ((((#(0) . #(1))) . 2))
+
+(let ((s '())
+      (c 0))
+  (let ((s/c `(,s . ,c))
+        (g (call/fresh
+             (lambda (x)
+               (call/fresh
+                 (lambda (y)
+                   (begin
+                     (== x 5) ; ignore
+                     (== y 6) ; ignore
+                     (== x y))))))))
+    (g s/c)))
+;; ((((#(0) . #(1))) . 2))
+
+(let ((s '())
+      (c 0))
+  (let ((s/c `(,s . ,c))
+        (g (call/fresh
+             (lambda (x)
+               (call/fresh
+                 (lambda (y)
+                   (== `(,x ,y ,x)
+                       `(5   6  ,y))))))))
+    (g s/c)))
+;; => ()
+
+
+(fresh (x y z)
+  (== x 5)
+  (== y 6)
+  (== `(,x ,y) z))
+
+(let ((s '())
+      (c 0))
+  (let ((s/c `(,s . ,c))
+        (g (call/fresh
+             (lambda (x)
+               (call/fresh
+                 (lambda (y)
+                   (call/fresh
+                     (lambda (z)
+                       (== `(,x ,y ,z)
+                           `(5   6  (,x ,y)))))))))))
+    (g s/c)))
+;; =>
+;; ((((#(2) #(0) #(1)) (#(1) . 6) (#(0) . 5)) . 3))
+;; s = ((#(2) . (#(0) #(1)))  z = (x y)
+;;      (#(1) . 6)            y = 6
+;;      (#(0) . 5))           x = 5
