@@ -1,5 +1,3 @@
-
-
 ;; microKanren in Scheme
 
 ;; based on 2013 Scheme Workshop paper by Jason Hemann and Dan Friedman
@@ -520,3 +518,15 @@
   (=/= #t x)
   (=/= #f x) ;; <- should fail!!!
   )
+
+;;;
+
+; unif/disunif
+
+; CLP(tree)
+
+; substitution
+
+; variables
+
+; goals, goal constructors, streams
