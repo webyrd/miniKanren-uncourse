@@ -791,10 +791,63 @@ s/c (((,x . 5) (,y . (,x 7))) . 2)
                    (call/fresh
                      (lambda (z)
                        (== `(,x ,y ,z)
-                           `(5   6  (,x ,y)))))))))))
+                           `(5   6 (,x ,y)))))))))))
     (g s/c)))
 ;; =>
 ;; ((((#(2) #(0) #(1)) (#(1) . 6) (#(0) . 5)) . 3))
 ;; s = ((#(2) . (#(0) #(1)))  z = (x y)
 ;;      (#(1) . 6)            y = 6
 ;;      (#(0) . 5))           x = 5
+
+
+
+(define (disj g1 g2) (lambdag (s/c) (mplus (g1 s/c) (g2 s/c))))
+(define (conj g1 g2) (lambdag (s/c) (bind (g1 s/c) g2)))
+
+
+
+;; s/c:  (substitution . counter)
+;;
+;; goal constructor: function that returns a goal
+;;      ==, call/fresh, disj, conj
+;;
+;; goal: function from an s/c to a stream of s/c's
+;;
+;; stream constructors: 'mzero' constructs the empty stream
+;;                      'unit'  constructs a singleton stream of s/c's
+(define disj
+  (lambda (g1 g2)
+    (lambda (s/c)
+      (mplus (g1 s/c) (g2 s/c)))))
+
+(define conj
+  (lambda (g1 g2)
+    (lambda (s/c)
+      (bind (g1 s/c) g2))))
+
+
+
+(define append
+  (lambda (l1 l2)
+    (cond
+      ((null? l1) l2)
+      (else (cons (car l1) (append (cdr l1) l2))))))
+
+(define append-map
+  (lambda (f l)
+    (cond
+      ((null? l) '())
+      (else (append (f (car l)) (append-map f (cdr l)))))))
+
+
+(define (mplus $1 $2)
+  (cond
+    ((null? $1) $2)
+    (else (cons (car $1) (mplus (cdr $1) $2)))))
+
+(define (bind $ g)
+  (cond
+    ((null? $) mzero)
+    (else (mplus (g (car $)) (bind (cdr $) g)))))
+
+((disj (== 5 5) (== 6 6)) (cons '() 0))
