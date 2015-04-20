@@ -1,0 +1,146 @@
+setup: player is in a room that has a painting on the wall
+
+
+logic: can the player see the painting?
+
+by default, the player can see the painting, if the player is in the same room as the painting
+
+unless...
+
+the lights are out [<- electricity failure]
+
+unless...
+
+they have a flashlight, in which case can they can the painting
+
+unless...
+
+they have no batteries
+
+or
+
+the batteries are dead
+
+
+
+
+player has lost their eyes or their glasses or the player is blindfolded or the player is invisible or hidden or there is smoke in the room
+
+
+
+
+
+Default Reasoning
+
+Defeasible Logic: Donald Nute, University of Georgia
+
+'Prolog Programming in Depth',
+Michael A. Covington's website
+Chapter 11: Defeasible Prolog
+
+
+
+
+
+A -> B  regular implication
+B ~> C  defeasible (defeatable) implication
+
+
+player-in-room -> can-see-painting
+lights-out -> !can-see-painting
+
+
+
+player-in-room ~> can-see-painting [1]
+lights-out [defeats 1]
+
+
+
+
+player-in-room ~> can-see-painting [1]
+lights-out ~> !can-see-painting [2, defeats 1]
+has-flashlight ~> can-see-painting [3, defeats 2]
+
+
+
+
+
+
+
+
+A
+A -> B, B -> C
+------------
+C
+
+
+
+
+
+
+p. 345
+
+If X is a bird, and X is not a penguin, then X can fly.
+chilly is a bird
+
+
+flies(X) :- bird(X), \+ penguin(X).
+bird(chilly).
+
+?- flies(chilly)
+YES
+
+penguin(chilly).
+
+?- flies(chilly)
+NO
+
+non-monotonic logic
+
+p. 369
+
+
+
+
+
+
+
+
+
+
+Linear logic: logic of resources or state
+useful for encoding the inventory, for example
+
+
+
+$1
+
+<transaction: exchange $1 for slice of pizza>
+
+slice-of-pizza
+
+
+
+
+Resources:
+
+Lists and Lists
+http://www.eblong.com/zarf/zweb/lists/
+
+Rule-based Programming in Interactive Fiction
+http://eblong.com/zarf/essays/rule-based-if/
+
+Other Zarf Interactive Fiction
+http://www.eblong.com/zarf/if.html#lists
+
+Prolog Programming in Depth
+http://www.covingtoninnovations.com/books/PPID.pdf
+
+rKanren: Guided Search in miniKanren
+http://www.schemeworkshop.org/2013/papers/Swords2013.pdf
+
+Representing Game Dialogue as Expressions in First-Order Logic
+http://ir.lib.uwo.ca/etd/1279/
+
+Margaret's game is now on Steam Greenlight.  Congratulations, Margaret!  :)
+http://deadlugosi.blogspot.com/2015/04/a-moment-with-steam-greenlight.html
